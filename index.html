@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Asteroid Field Glider</title>
+  <style>
+    body { margin: 0; background: black; overflow: hidden; }
+    canvas { display: block; margin: auto; background: black; }
+    #game {
+      border: 1px solid white;
+    }
+  </style>
+  <script src="draw.js"></script>
+  <script src="update.js"></script>
+</head>
+<body>
+  <canvas id="game" width="800" height="600"></canvas>
+
+ <!-- simple overlay for errors -->
+  <div id="errorOverlay" style="
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    background:rgba(0,0,0,0.7);
+    color:#f55;
+    font:12px monospace;
+    padding:4px;
+    z-index:9999;
+    pointer-events:none;">
+  </div>
+<img id="fabric" src="textures/pattern.png" hidden>
+
+<script>
+
+//function refresh() {window.location.reload();}
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+window.CELL_SIZE = 50000000; // world units per cell
+const CELLS_CANDIDATES = 20;
+
+const BOUNDS = 10000000;           // scatter range in X/Y
+const MAX_FRONT_BASE = 0;        // max distance
+const ASTEROID_SIZE = 500;
+MAX_FRONT = MAX_FRONT_BASE;        // max distance
+const NUM_ASTEROIDS = 50000;
+MIN_FRONT = 0;         // min distance to respawn in front
+
+let boostChargeTime = 0;   // how long keys held
+let isChargingBoost = false;
+let lastFrameTime = performance.now();
+const zoomSpeed = 300; // units per second
+let holdTime = 0;         // how long keys have been held
+let inBoostMode = false;  // true once past 1s threshold
+
+const baseFOV = 1000;       // your normal FOV
+const targetFOV = 200;
+let FOV = baseFOV;
+targetSpeed = 10000;
+
+const TURN_RATE = 0.0124;
+//const TURN_RATE = 0.00675;
+const GLIDE = 0;
+sensitivity = 1.0;
+
+STRAFE = 0;
+
+// somewhere in your setup:
+const hudLogs = [];
+const oldLog = console.log;
+console.log = function(...args) {
+  // still log to the real console:
+  oldLog.apply(console, args);
+  // build a single string to show on HUD:
+  const msg = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+  hudLogs.push(msg);
+  if (hudLogs.length > 5) hudLogs.shift(); // keep last 5 lines
+};
+
+let keys = {};
+window.addEventListener("keydown", e => { 
+  keys[e.key] = true;
+  if (e.key === " ")
+    keys["Space"] = true;
+});
+
+window.addEventListener("keyup",   e => { 
+  keys[e.key] = false;
+  if (e.key === " ")
+    keys["Space"] = false;
+});
+
+const spacePressed = () => keys[" "] || keys["Space"];
+
+// Ship (camera) state
+let ship = { x: 0, y: 0, z: 0, speed: 3000, yaw: 0, pitch: 0 };
+// Camera basis (local axes)
+let camForward = { x: 0, y: 0, z: 1 };
+let camRight   = { x: 1, y: 0, z: 0 };
+let camUp      = { x: 0, y: 1, z: 0 };
+
+// Simple 2D overlay ship (HUD-style)
+let shipOverlay = {
+  verts: [
+    {x: 0,  y: -10},  // nose
+    {x:-205, y:  25},
+    {x: 205, y:  25},
+  ]
+};
+
+const asteroidCells = new Map(); // key: "ix,iy,iz" → array of asteroids
+
+let asteroids = [];
+let b = {x: 0, y: 0, z:100, size:ASTEROID_SIZE, id:0}
+asteroids.push(b)
+for (let i = 1; i < NUM_ASTEROIDS; i++) {
+  const a = {
+    x: (Math.random() - 0.5) * 2 * BOUNDS,
+    y: (Math.random() - 0.5) * 2 * BOUNDS,
+    z: (Math.random() - 0.5) * 2 * BOUNDS,
+    size: ASTEROID_SIZE,
+    id: i
+  };
+  asteroids.push(a);
+
+////////////////// put b in a cell
+
+  // assign to cell
+  const ix = Math.floor(a.x / CELL_SIZE);
+  const iy = Math.floor(a.y / CELL_SIZE);
+  const iz = Math.floor(a.z / CELL_SIZE);
+  const key = `${ix},${iy},${iz}`;
+  if (!asteroidCells.has(key)) asteroidCells.set(key, []);
+  asteroidCells.get(key).push(a);
+}
+
+function draw() {
+  let alpha = 1;
+  ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawAsteroids();
+  drawShipOverlay();
+  drawHUD();
+  drawMiniMap();
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+
+</script>
+
+  <script>
+    // simple function to log to overlay
+    function logErrorToOverlay(msg) {
+      const overlay = document.getElementById('errorOverlay');
+      overlay.textContent = msg;
+    }
+
+    // capture all JS errors
+    window.addEventListener('error', e => {
+      logErrorToOverlay(`Error: ${e.message} at ${e.filename}:${e.lineno}`);
+    });
+
+    // capture unhandled promise rejections too
+    window.addEventListener('unhandledrejection', e => {
+      logErrorToOverlay(`Unhandled rejection: ${e.reason}`);
+    });
+
+    // you can also log manually:
+    // logErrorToOverlay('some debug info');
+  </script>
+  <div id="error" style="overflow: scroll; word-wrap: break-word; border: 1px solid black; width: 100%; height: 500px; background: black; color: white;">
+  </div>
+  <script>
+	  const errorDiv = document.getElementById('error');
+		window.onerror = function(errorMsg, url, lineNumber) {
+		  // Append new errors to the div content, rather than replacing it
+		  errorDiv.innerHTML += `<p>Error in ${url} at line ${lineNumber}: <br> **${errorMsg}**</p>`;
+		  
+		  // Return false to prevent the default browser console error from showing (optional)
+		  // return false; 
+		};
+
+		function println(message) {
+			errorDiv.innerHTML += message + '<br>';
+		}
+  </script>
+</body>
+</html>
