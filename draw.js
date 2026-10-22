@@ -121,7 +121,7 @@ function drawAsteroids() {
 //			println(dist_new + " " + dist_old )
 			if ( dist_new < dist_old ) {
 				closeby = a;
-				println("closeby is now" + a.id)
+//				println("closeby is now" + a.id)
 //		    nearby += 1
 	    }
 //	    else
@@ -188,8 +188,8 @@ function drawShipOverlay() {
   const cx = canvas.width/2;
   const cy = canvas.height/2 + 80; // one ship-height lower than center
 
-  ctx.strokeStyle = "red";
-  ctx.fillStyle = "rgba(255,0,0,0.5)";
+  ctx.strokeStyle = "green";
+  ctx.fillStyle = "rgba(0,255,0,0.5)";
   ctx.beginPath();
   ctx.moveTo(cx + shipOverlay.verts[0].x, cy + shipOverlay.verts[0].y);
   for (let i = 1; i < shipOverlay.verts.length; i++) {
@@ -202,16 +202,20 @@ function drawShipOverlay() {
 }
 
 function drawHUD() {
-    ctx.fillStyle = "lime";
+    ctx.fillStyle = "yellow";
     ctx.font = "16px monospace";
+//    ctx.textBaseline = "bottom";
     ctx.fillText(`Speed: ${ship.speed.toFixed(1)}`, 10, 20);
-    ctx.fillText(`Yaw: ${ship.yaw.toFixed(2)}  Pitch: ${ship.pitch.toFixed(2)}`, 10, 40);
+    ctx.fillText(`Use the arrow keys to turn.`, 10, 40);
+    ctx.fillText(`Hold space and ↑ to go faster.`, 10, 60);
+    ctx.fillText(`Slow by holding space and ↓.`, 10, 80);
+//    ctx.fillText(`Yaw: ${ship.yaw.toFixed(2)}  Pitch: ${ship.pitch.toFixed(2)}`, 10, 40);
 
     // Show currently pressed keys
-    const pressed = Object.keys(keys).filter(k => keys[k]);
-    ctx.fillText(`Keys pressed: ${pressed.join(" ") || "none"}`, 10, 60);
+//    const pressed = Object.keys(keys).filter(k => keys[k]);
+//    ctx.fillText(`Keys pressed: ${pressed.join(" ") || "none"}`, 10, 60);
 
-    const d = camForward;
+/*    const d = camForward;
     ctx.fillText(
       `Direction: (${d.x.toFixed(2)}, ${d.y.toFixed(2)}, ${d.z.toFixed(2)})`,
       10, 80
@@ -220,7 +224,7 @@ function drawHUD() {
     let slowRate = (ship.speed/500) * Math.sqrt(ship.speed);
 
 		let turning = sensitivity * TURN_RATE;
-		
+	
     ctx.fillText(`Turning: ${turning.toFixed(4)}`, 10, 100);
     ctx.fillText(`FOV: ${FOV.toFixed(2)}`, 10, 120);
     ctx.fillText(`holdTime: ${holdTime.toFixed(2)}`, 10, 140);
@@ -238,6 +242,7 @@ function drawHUD() {
     ctx.fillText(line, 10, y);
     y += 16;
   }
+*/
 }
 
 function drawMiniMap() {

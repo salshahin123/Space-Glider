@@ -33,17 +33,19 @@
 
 <script>
 
+//function refresh() {window.location.reload();}
+
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
 
-window.CELL_SIZE = 5000000; // world units per cell
+window.CELL_SIZE = 50000000; // world units per cell
 const CELLS_CANDIDATES = 20;
 
 const BOUNDS = 10000000;           // scatter range in X/Y
 const MAX_FRONT_BASE = 0;        // max distance
 const ASTEROID_SIZE = 500;
 MAX_FRONT = MAX_FRONT_BASE;        // max distance
-const NUM_ASTEROIDS = 10000;
+const NUM_ASTEROIDS = 50000;
 MIN_FRONT = 0;         // min distance to respawn in front
 
 let boostChargeTime = 0;   // how long keys held
@@ -56,7 +58,7 @@ let inBoostMode = false;  // true once past 1s threshold
 const baseFOV = 1000;       // your normal FOV
 const targetFOV = 200;
 let FOV = baseFOV;
-targetSpeed = 50000;
+targetSpeed = 10000;
 
 const TURN_RATE = 0.0124;
 //const TURN_RATE = 0.00675;
@@ -93,7 +95,7 @@ window.addEventListener("keyup",   e => {
 const spacePressed = () => keys[" "] || keys["Space"];
 
 // Ship (camera) state
-let ship = { x: 0, y: 0, z: 0, speed: 0, yaw: 0, pitch: 0 };
+let ship = { x: 0, y: 0, z: 0, speed: 3000, yaw: 0, pitch: 0 };
 // Camera basis (local axes)
 let camForward = { x: 0, y: 0, z: 1 };
 let camRight   = { x: 1, y: 0, z: 0 };
