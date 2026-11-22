@@ -26,6 +26,22 @@ function update() {
     ship.speed += 100 * holdTime; 
     ship.speed = Math.min(ship.speed, targetSpeed);
 
+		// known bug: game will pause when maximum speed reached
+    if (ship.speed == targetSpeed) {
+			const targetElement = document.querySelector('canvas');
+
+			const keyDownEvent = new KeyboardEvent('keyup', {
+			  key: 'Space',
+			  code: 'Space',
+			  bubbles: true,
+			  cancelable: true
+			});
+
+			targetElement.dispatchEvent(keyDownEvent);
+
+        return;
+    }
+
     sensitivity -= .1;
     sensitivity = Math.max(sensitivity, 1.2);
 

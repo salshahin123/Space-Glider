@@ -38,7 +38,7 @@
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
 
-window.CELL_SIZE = 50000000; // world units per cell
+window.CELL_SIZE = 10000000; // world units per cell
 const CELLS_CANDIDATES = 20;
 
 const BOUNDS = 10000000;           // scatter range in X/Y
@@ -58,7 +58,7 @@ let inBoostMode = false;  // true once past 1s threshold
 const baseFOV = 1000;       // your normal FOV
 const targetFOV = 200;
 let FOV = baseFOV;
-targetSpeed = 10000;
+targetSpeed = 9000;
 
 const TURN_RATE = 0.0124;
 //const TURN_RATE = 0.00675;

@@ -202,6 +202,7 @@ function drawShipOverlay() {
 }
 
 function drawHUD() {
+	return;
     ctx.fillStyle = "yellow";
     ctx.font = "16px monospace";
 //    ctx.textBaseline = "bottom";
@@ -246,6 +247,7 @@ function drawHUD() {
 }
 
 function drawMiniMap() {
+	return;
   // --- config ---
   const mapSize = 150;                 // square minimap size
   const scale = 1 / (BOUNDS * .1);    // how to map (tune this)
